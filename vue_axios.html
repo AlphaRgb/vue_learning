@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Axios</title>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div id="app">
+    {{ message }}
+    <ul>
+        <li v-for="film in films">
+            {{ film }}
+        </li>
+    </ul>
+</div>
+<script>
+    var vm = new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                films: [],
+                isloading: false,
+                fetchError: null,
+                message: 'haha'
+            }
+        },
+        watch: {
+            '$route': function () {
+                var self = this
+                self.isloading = true
+                self.fetchData().then(function () {
+                    this.isloading = false
+                })
+            }
+        },
+        methods: {
+            fetchData: function () {
+                var self = this
+                return axios.get('http://swapi.co/api/people/2').then((function (response) {
+                    self.films = response.data.films
+                    console.log(response.data)
+                }), function (response) {
+                    console.log(response.status_code)
+                }).catch(function (error) {
+                    self.fetchError = error
+                })
+            }
+        }
+    })
+</script>
+</body>
+</html>
