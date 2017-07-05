@@ -1,0 +1,93 @@
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/axios@0.12.0/dist/axios.min.js"></script>
+<script src="https://unpkg.com/lodash@4.13.1/lodash.min.js"></script>
+
+<div id="app">
+	{{message}}
+	{{reverseMessage}}
+	{{now}}
+	<input type="text" v-model="firstname">
+	<input type="text" v-model="lastname">
+	<p>{{fullname}}</p>
+	<p>
+		ask a yes/no question:
+		<input type="text" v-model="question">
+	</p>
+	<p>{{answer}}</p>
+</div>
+
+<script>
+	var vm = new Vue({
+		el:'#app',
+		data:{
+			message:'hahaha',
+			firstname:'haha1',
+			lastname:'haha2',
+			question:'',
+			answer:'i cannot give you an answer until you ask a question.'
+		},
+		computed:{
+			reverseMessage:function(){
+				return this.message.split('').reverse().join('')
+			},
+			now:function(){
+				return Date.now()
+			},
+			fullname:{
+				// getter
+				get:function(){
+				return this.firstname + this.lastname
+			},
+				// setter
+				set:function(namevalues){
+					var names = namevalues.split(' ')
+					this.firstname = names[0]
+					this.lastname = names[names.length-1]
+				}
+			}
+		},
+		watch:{
+			question:function(newQuestion){
+				this.answer = 'waiting for you stop typing...'
+				this.getAnswer()
+			}
+		},
+		methods:{
+			// _debounce 限制操作的频率
+			getAnswer:_.debounce(
+				function(){
+					if (this.question.indexOf('?') === -1){
+						this.answer = 'question usually contain a question mark.;'
+						return
+					}
+					this.answer = 'thinking'
+					var vm = this
+					axios.get('https://yesno.wtf/api').then((response) => {
+						vm.answer = _.capitalize(response.data.answer)
+					}).catch((error) => {
+						vm.answer = 'error! could not reach the api,' + error
+					})
+				},500)
+		}
+	})
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
